@@ -1,37 +1,31 @@
-# R
+# Histórico e ambiente do R
 .Rhistory
 .RData
 .Ruserdata
 .Rproj.user/
 
-# Quarto
-*.html
-*.png
-*.pdf
-*.svg
-*.log
+# Cache e artefatos do Quarto
+/.quarto/
+_freeze/
+*_files/
 
-# Dados (se não quiser expor no padrão do curso público)
-dados/
-# Dados de exemplo, se houver
-dados-esferoides.xlsx
-dados_esferoides.xlsx
-
-# Editor
-.vscode/
-.idea/
-*.swp
-*~
-
-# Modelos de arquivo
-__pycache__/
-*.pyc
+# Arquivos temporários do sistema
 .DS_Store
 Thumbs.db
 
-# Saída de renderização de figuras (pode ser regenerada)
-fig*.png
-fig*_*.png
-.Rproj.user
-.httr-oauth
-.quarto
+# Renv, se vier a ser usado
+renv/library/
+renv/staging/
+
+# Arquivos internos de planejamento e estilo, não fazem parte do material público
+_ferramentas/
+CLAUDE.md
+IDEA.md
+PROGRESSO.md
+Comparar_Tratamentos_lm_teste_t_replicas.md
+Conteudo_Programatico_Modelo_Misto.md
+Dinamica_e_Fluxo_de_Arquivos.md
+
+# Casos práticos ainda não publicados
+Módulo C1 - sleepstudy/
+Módulo C2 - Esferoides/
