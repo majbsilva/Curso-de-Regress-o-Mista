@@ -5,16 +5,17 @@ _Setembro 2026_
 
 Este repositório reúne os materiais do curso de bioestatística em R, com foco em modelos de efeitos fixos e aleatórios (modelos mistos). O curso combina módulos teóricos e casos práticos aplicados em R, pensado para quem precisa analisar dados de estudos e experimentos mas tem pouca familiaridade com estatística e com a linguagem R.
 Objetivos
+
 ---------
 
 Ao final do curso, espera-se que as pessoas participantes sejam capazes de:
 
-* entender por que usar um modelo misto e a diferença entre efeito fixo e efeito aleatório;
-* reconhecer quando aplicar (e quando não aplicar) um modelo misto;
-* estruturar e ajustar modelos mistos em R (`lmer`, `glmer`, `gls`);
-* escolher a estrutura de efeitos aleatórios adequada e comparar modelos por AIC/BIC;
-* realizar o diagnóstico do modelo (resíduos, convergência, colinearidade);
-* aplicar os conceitos a um caso clássico (sleepstudy) e a um caso real de bancada (esferoides).
+* Entender por que usar um modelo misto e a diferença entre efeito fixo e efeito aleatório;
+* Reconhecer quando aplicar (e quando não aplicar) um modelo misto;
+* Estruturar e ajustar modelos mistos em R (`lmer`, `glmer`, `gls`);
+* Escolher a estrutura de efeitos aleatórios adequada e comparar modelos por AIC/BIC;
+* Realizar o diagnóstico do modelo (resíduos, convergência, colinearidade);
+* Aplicar os conceitos a um caso clássico (sleepstudy) e a um caso real de bancada (esferoides).
 
 Conteúdo programático
 ---------------------
@@ -41,12 +42,10 @@ Metodologia
 -----------
 
 Cada módulo teórico tem um arquivo-mestre em Quarto (`.qmd`) com o código completo e um template do aluno (mesmo texto, código em branco com dicas), gerado a partir do mestre pelo script `_ferramentas/gerar_template.R`. Os dois casos práticos seguem a mesma lógica.
-Público-alvo
-------------
 
-Alunos de pós-graduação, professores e profissionais da pesquisa que precisam analisar dados de estudos e experimentos, mas frequentemente enfrentam dificuldade com estatística e com a linguagem R.
-Referências-base
-----------------
+
+
+## Referências
 
 * Harrell, F. E. (2015). _Regression Modeling Strategies_. Springer.
 * Field, A., Miles, J., e Field, Z. (2012). _Discovering Statistics Using R_. Sage.
@@ -64,7 +63,6 @@ Vinhetas
 8. [Módulo 8, Modelos mistos estendidos](https://majbsilva.github.io/Curso-de-Regress-o-Mista/vinhetas/Modulo_8_Modelos_estendidos.html)
 9. [Módulo 9, Erros frequentes dos iniciantes](https://majbsilva.github.io/Curso-de-Regress-o-Mista/vinhetas/Modulo_9_Erros_frequentes.html)
 10. [Módulo 10, Roteiro de exercícios](https://majbsilva.github.io/Curso-de-Regress-o-Mista/vinhetas/Modulo_10_Exercicios.html)
-
 
 -----------
 
