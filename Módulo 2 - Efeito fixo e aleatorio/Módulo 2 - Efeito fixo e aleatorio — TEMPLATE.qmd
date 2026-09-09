@@ -1,0 +1,78 @@
+---
+title: "Efeito fixo versus efeito aleatório — Template"
+subtitle: "Os dois conceitos centrais, sem jargão"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## Dois tipos de efeito
+
+O modelo misto separa a influência sobre a resposta em duas partes. Entender essa separação é o primeiro passo.
+
+### Efeito fixo
+
+É o que queremos estimar e interpretar: o efeito do próprio fator em estudo na população. Exemplos:
+
+- Efeito de um fármaco (versus placebo) sobre a pressão arterial.
+- Diferença entre duas dietas no ganho de peso.
+- Efeito do tempo (dia 0, 7, 14) na carga viral.
+
+Perguntamos: "qual o tamanho desse efeito?"
+
+### Efeito aleatório
+
+É a variação que vem do agrupamento e que não queremos estimar ponto a ponto, só descrever sua dispersão. Exemplos:
+
+- Cada paciente tem sua linha de base própria.
+- Cada hospital tem condições ligeiramente diferentes.
+- Cada lote de reagentes introduz ruído.
+
+Perguntamos: "quanto da variação total vem das diferenças entre grupos?", não "qual o valor exato de cada grupo?".
+
+## A equação resumida
+
+```         
+resposta = efeitos fixos + efeitos aleatórios + erro
+```
+
+## Ilustrando no R
+
+Simulamos dados onde a interceptação varia por sujeito (efeito aleatório) e o tempo tem efeito comum (efeito fixo).
+
+```{r}
+#| label: fixo vs aleatorio
+# Construa um modelo misto e separe os dois tipos de efeito
+
+
+# (1 | sujeito): interceptação aleatória; tempo é efeito fixo
+
+```
+
+O valor fixo perto de 3 confirma o efeito do tempo; a variância entre sujeitos mostra quanto cada um desvia da linha de base.
+
+## Erro comum de interpretação
+
+Não trate o efeito aleatório como estimativa de cada grupo. Ele descreve a dispersão, não o valor de cada um.
+
+## Conceitos-chave (Harrell, Field)
+
+- Harrell: a estrutura de covariância entre medidas do mesmo grupo é parte do modelo.
+- Field: o efeito aleatório capta que os grupos vêm de uma população maior de grupos.

@@ -1,0 +1,85 @@
+---
+title: "Exemplo prático em R: medidas repetidas"
+subtitle: "Cenário de bancada com pacientes e visitas"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## O cenário
+
+Pacientes com hipertensão avaliados na pressão sistólica em três visitas (dia 0, 30, 60), comparando dois tratamentos (tratado e controle).
+
+## Preparando dados simulados
+
+```{r}
+#| label: preparar visitas
+# Crie um dataset de medidas repetidas com dois tratamentos
+set.seed(2024)
+pac <- 1:40
+d <- expand.grid(paciente = pac, visita = c(0, 30, 60))
+d$tratamento <- ifelse(d$paciente <= 20, "Tratado", "Controle")
+# interceptação por paciente (aleatório) + efeito de tratamento e visita (fixos)
+base_pac <- rnorm(40, 120, 8)
+y <- numeric(nrow(d))
+for (i in seq_len(nrow(d))) {
+  b <- base_pac[d$paciente[i]]
+  trt <- ifelse(d$tratamento[i] == "A", -5, 0)
+  vis <- 0.2 * d$visita[i]
+  y[i] <- b + trt + vis + rnorm(1, 0, 3)
+}
+d$pas <- y
+head(d)
+```
+
+### Gráfico de macarrão
+
+```{r}
+library(tidyverse)
+d %>% 
+  ggplot(aes(x = visita, y = pas, colour = factor(paciente))) + 
+  geom_line() +
+  facet_grid(~tratamento)
+```
+
+## Ajustando o modelo misto
+
+```{r}
+#| label: ajustar visitas
+# Ajuste o modelo com interceptação aleatória por paciente
+library(lme4)
+library(lmerTest)
+modelo <- lmer(pas ~ tratamento * factor(visita) + (1 | paciente), data = d)
+summary(modelo)
+```
+
+O termo `tratamento:visita` revela se a diferença entre fármaco e placebo muda ao longo do momento das visitas (tempo).
+
+::: callout-note
+## O que a interação responde?
+
+*O efeito da visita sobre a PAS é o mesmo nos dois tratamentos? OU Cada tratamento faz a PAS subir num ritmo diferente?*
+:::
+
+O `(1 | paciente)` reconhece que cada paciente tem linha de base própria.
+
+## Sem o termo aleatório
+
+```{r}
+#| label: sem aleatorio
+# Compare com a regressão comum para ver a diferença
+m_lm <- lm(pas ~ tratamento * factor(visita), data = d)
+cat("\nEP de tratamentoA (lm):",
+    round(summary(m_lm)$coef["tratamentoTratado:factor(visita)30","Std. Error"], 3), "\n")
+cat("EP de tratamentoA (lmer):",
+    round(summary(modelo)$coef["tratamentoTratado:factor(visita)30","Std. Error"], 3), "\n")
+```

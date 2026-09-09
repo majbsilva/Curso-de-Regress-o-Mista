@@ -1,0 +1,70 @@
+---
+title: "Por que usar modelo misto"
+subtitle: "Fundamento: dados não independentes na pesquisa"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## O problema central
+
+Na pesquisa, raramente temos observações totalmente independentes. Medimos o mesmo paciente em vários momentos, o mesmo animal em várias pesagens, a mesma placa de cultura em vários tempos. Quando isso acontece, as medidas de um mesmo grupo se parecem mais entre si do que com as de outros grupos.
+
+A regressão comum (como `lm`) trata cada linha como se fosse um sujeito diferente. Ela "acha" mais independência do que existe e entrega erros-padrão subestimados. Conclusão falsa: achamos significância onde não há.
+
+Harrell reforça: modelar a estrutura de covariância dos dados faz parte do modelo, não é detalhe. Field apresenta o mesmo ponto como a porta de entrada para modelos multinível.
+
+## Exemplos de dados agrupados
+
+- Paciente medido antes, durante e após um tratamento.
+- Animais ou placas do mesmo lote.
+- Estudos multicêntricos (pacientes agrupados por hospital).
+- Medidas repetidas de um sujeito ao longo do tempo.
+
+## O que o modelo misto faz
+
+Ele separa dois tipos de efeito: os que nos interessam (efeitos fixos) e a variação entre grupos (efeitos aleatórios). Assim os erros-padrão passam a refletir a dependência real dos dados.
+
+## Simulando o problema
+
+Vamos simular dados de 5 sujeitos medidos 10 vezes e ver por que a regressão comum erra.
+
+```{r}
+#| label: simular dependencia
+# Simule dados com efeito de sujeito (linha de base própria) e veja a estrutura
+set.seed(2024)
+n_suj <- 5
+n_med <- 10
+# cada sujeito tem sua linha de base (efeito aleatório de interceptação)
+base_suj <- rnorm(n_suj, mean = 50, sd = 8)
+dados <- data.frame()
+for (i in seq_len(n_suj)) {
+  v_dependente <- base_suj[i] + 2 * (1:n_med) + rnorm(n_med, 0, 2)
+  dados <- rbind(dados, data.frame(sujeito = i, tempo = 1:n_med, v_dependente = v_dependente))
+}
+head(dados)
+
+# Regressão comum IGNORA o sujeito
+m_lm <- lm(v_dependente ~ tempo, data = dados)
+summary(m_lm)
+```
+
+O erro-padrão acima está subestimado porque o modelo trata 50 linhas como 50 sujeitos independentes. No próximo módulo vemos o modelo misto corrigir isso.
+
+## Para discutir
+
+- Em seu próprio tipo de dado (clínico ou de bancada), onde está o agrupamento?
+- O que acontece com a conclusão se ignorarmos esse agrupamento?

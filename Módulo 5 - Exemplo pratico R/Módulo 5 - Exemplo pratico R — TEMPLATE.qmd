@@ -1,0 +1,56 @@
+---
+title: "Exemplo prático em R: medidas repetidas — Template"
+subtitle: "Cenário de bancada com pacientes e visitas"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## O cenário
+
+Pacientes com hipertensão avaliados na pressão sistólica em três visitas (dia 0, 30, 60), comparando dois tratamentos (fármaco A e placebo).
+
+## Preparando dados simulados
+
+```{r}
+#| label: preparar visitas
+# Crie um dataset de medidas repetidas com dois tratamentos
+# interceptação por paciente (aleatório) + efeito de tratamento e visita (fixos)
+```
+
+## Ajustando o modelo misto
+
+```{r}
+#| label: ajustar visitas
+# Ajuste o modelo com interceptação aleatória por paciente
+```
+
+O termo `tratamento:visita` revela se a diferença entre fármaco e placebo muda ao longo do tempo. O `(1 | paciente)` reconhece que cada paciente tem linha de base própria.
+
+## Sem o termo aleatório
+
+```{r}
+#| label: sem aleatorio
+# Compare com a regressão comum para ver a diferença
+```
+
+## Exercício imediato
+
+Repita com um terceiro tratamento e interprete a interação.

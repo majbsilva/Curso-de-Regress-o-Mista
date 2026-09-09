@@ -1,0 +1,37 @@
+# R
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Quarto
+*.html
+*.png
+*.pdf
+*.svg
+*.log
+
+# Dados (se não quiser expor no padrão do curso público)
+dados/
+# Dados de exemplo, se houver
+dados-esferoides.xlsx
+dados_esferoides.xlsx
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Modelos de arquivo
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Saída de renderização de figuras (pode ser regenerada)
+fig*.png
+fig*_*.png
+.Rproj.user
+.httr-oauth
+.quarto

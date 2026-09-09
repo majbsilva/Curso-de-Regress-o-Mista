@@ -1,0 +1,49 @@
+---
+title: "Diagnóstico do modelo misto"
+subtitle: "Verificações antes de confiar nos resultados"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## O que checar no modelo
+
+- Resíduos aproximadamente normais (gráfico QQ).
+- Variância dos efeitos aleatórios plausível (não zero, não enorme).
+- Convergência do algoritmo sem avisos.
+- Sem colinearidade excessiva entre os fixos.
+
+## Diagnóstico
+
+```{r}
+#| label: diagnostico basico
+# Gere gráficos de diagnóstico do modelo ajustado
+library(lme4) 
+library(lmerTest)
+library(performance)
+data(sleepstudy)
+modelo <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+
+check_model(modelo)
+```
+
+O ideal: pontos sem padrão claro no gráfico de resíduos e os pontos do QQ colados na reta.
+
+## Convergência
+
+Se aparecer aviso de convergência, não ignore. Pode indicar modelo mal especificado ou dados insuficientes.
+
+::: callout-tip
+## Uma boa prática
+
+Inspecione os resíduos sempre antes de interpretar coeficientes.
+:::

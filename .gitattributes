@@ -1,0 +1,6 @@
+# normalize line endings
+*.md text eol=lf
+*.qmd text eol=lf
+*.R text eol=lf
+*.Rmd text eol=lf
+*.py text eol=lf

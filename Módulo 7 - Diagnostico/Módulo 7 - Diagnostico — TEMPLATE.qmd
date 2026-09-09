@@ -1,0 +1,51 @@
+---
+title: "Diagnóstico do modelo misto — Template"
+subtitle: "Verificações antes de confiar nos resultados"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## O que checar
+
+Antes de levar o modelo a sério, verifique:
+
+- Resíduos aproximadamente normais (gráfico QQ).
+- Variância dos efeitos aleatórios plausível (não zero, não enorme).
+- Convergência do algoritmo sem avisos.
+- Sem colinearidade excessiva entre os fixos.
+
+## Diagnóstico no R
+
+```{r}
+#| label: diagnostico basico
+# Gere gráficos de diagnóstico do modelo ajustado
+
+```
+
+O ideal: pontos sem padrão claro no gráfico de resíduos e os pontos do QQ colados na reta.
+
+## Convergência
+
+Se aparecer aviso de convergência, não ignore. Pode indicar modelo mal especificado ou dados insuficientes.
+
+## Boa prática (Field)
+
+Field recomenda inspecionar os resíduos como passo obrigatório, não opcional, antes de interpretar coeficientes.

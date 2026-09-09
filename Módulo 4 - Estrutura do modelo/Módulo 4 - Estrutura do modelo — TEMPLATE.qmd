@@ -1,0 +1,69 @@
+---
+title: "Estrutura do modelo misto — Template"
+subtitle: "A forma matemática traduzida para uso prático"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## A equação
+
+O modelo misto linear (resposta contínua) tem a forma:
+
+```
+y = X * beta + Z * b + e
+```
+
+Onde:
+
+- `y` é a variável resposta.
+- `X * beta` são os efeitos fixos (o que interpretamos).
+- `Z * b` são os efeitos aleatórios (a variação entre grupos).
+- `e` é o erro residual.
+
+A parte aleatória assume distribuição, em geral normal, com sua própria variância. O modelo estima as médias dos fixos e as variâncias dos aleatórios.
+
+## Traduzindo para a fórmula do R
+
+No `lme4`, escrevemos a parte fixa à esquerda e a aleatória entre parênteses à direita:
+
+```
+lmer(resposta ~ fixos + (1 | grupo), data = d)
+```
+
+O `(1 | grupo)` diz: cada grupo tem sua própria interceptação (linha de base).
+
+## Exemplo mínimo
+
+```{r}
+#| label: estrutura minima
+# Ajuste o modelo mais simples com interceptação aleatória
+```
+
+Repare na saída: `Random effects` traz a variância entre sujeitos; `Fixed effects` traz o efeito de `Days`.
+
+## Por que isso importa (Harrell)
+
+Harrell defende especificar a estrutura de covariância explicitamente. O termo aleatório é onde declaramos como os dados estão correlacionados, e não fingimos independência.
+
+## Ligações
+
+- Módulo 2: os dois tipos de efeito.
+- Módulo 6: como ampliar a estrutura aleatória.

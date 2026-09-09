@@ -1,0 +1,49 @@
+---
+title: "Como escolher a estrutura aleatória"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## Comece simples
+
+A regra prática: inicie com o modelo mais simples e amplie só se os dados pedirem.
+
+- `(1 | id)`: interceptação aleatória, cada grupo tem linha de base diferente.
+- `(1 + tempo | id)`: interceptação e inclinação aleatórias, cada grupo tem linha de base e evolução próprias.
+- `(1 | hospital/id)`: aninhamento, pacientes aninhados em hospitais.
+
+## Comparando no R
+
+```{r}
+#| label: comparar estruturas
+# Compare interceptação só vs interceptação + inclinação
+library(lme4)
+library(lmerTest)
+data(sleepstudy)
+m1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+m2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepstudy)
+cat("\nComparação (menor AIC é melhor):\n")
+anova(m1, m2)
+```
+
+Se `m2` tiver AIC menor e diferença significativa, os sujeitos pioram em ritmos diferentes.
+
+## Critérios
+
+Use AIC, BIC e teste de razão de verossimilhança. Não inclua efeito aleatório por capricho: cada um consome graus de liberdade e pode impedir a convergência.
+
+::: callout-caution
+## Cuidado
+
+Efeitos aleatórios próximos de zero sugerem que o agrupamento não importa; nesse caso, simplifique.
+:::

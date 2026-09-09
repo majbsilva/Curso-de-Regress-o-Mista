@@ -1,0 +1,45 @@
+---
+title: "Modelos mistos estendidos — Template"
+subtitle: "Além da resposta contínua"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## A mesma lógica, outra resposta
+
+Os efeitos fixos e aleatórios se mantêm. O que muda é a função de ligação da resposta.
+
+- Resposta binária (sim/não, cura/não cura): modelos mistos generalizados com `glmer`.
+- Contagens: Poisson ou binomial negativa com efeitos mistos.
+- Sobrevida com dados agrupados: modelos de fragilidade mista.
+
+## Exemplo binomial
+
+```{r}
+#| label: glmer exemplo
+# Ajuste modelo misto generalizado para resposta binária
+```
+
+O `(1 | sujeito)` continua captando a variação entre sujeitos, agora em uma resposta binária.
+
+## Quando usar
+
+Use `glmer` sempre que a resposta não for contínua e houver agrupamento. A interpretação dos fixos vira em termos de chance (logito).

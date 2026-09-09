@@ -1,0 +1,90 @@
+---
+title: "Estrutura do modelo misto"
+subtitle: "A forma matemática traduzida para uso prático"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## A equação
+
+O modelo misto linear (resposta contínua) tem a forma:
+
+```         
+y = X * beta + Z * b + e
+```
+
+Onde:
+
+- `y` é a variável resposta.
+- `X * beta` são os efeitos fixos (o que interpretamos).
+- `Z * b` são os efeitos aleatórios (a variação entre grupos).
+- `e` é o erro residual.
+
+A parte aleatória assume distribuição, em geral normal, com sua própria variância. O modelo estima as médias dos fixos e as variâncias dos aleatórios.
+
+## Traduzindo para a fórmula do R
+
+No `lme4`, escrevemos a parte fixa à esquerda e a aleatória entre parênteses à direita:
+
+```         
+lmer(resposta ~ fixos + (1 | grupo), data = d)
+```
+
+O `(1 | grupo)` diz: cada grupo tem sua própria interceptação (linha de base).
+
+## Exemplo
+
+```{r}
+#| label: estrutura minima
+# Ajuste o modelo mais simples com interceptação aleatória
+library(lme4)
+library(lmerTest)
+data(sleepstudy)
+modelo <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+print(summary(modelo), digits = 3)
+```
+
+Repare na saída: `Random effects` traz a variância entre sujeitos; `Fixed effects` traz o efeito de `Days`.
+
+### Vamos observar o gráfico de macarrão
+
+```{r}
+library(tidyverse)
+sleepstudy %>% 
+  ggplot(aes(x = factor(Days), y = Reaction, colour = Subject))+
+  geom_line(aes(group = Subject))
+```
+
+Veja no gráfico acima, que cada a reação de cada sujeito ao longo do tempo é diferente. Vamos ver isso no modelando com a inclinação aleatória
+
+```{r}
+modelo_inclinacao_aletaoria <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepstudy)
+summary(modelo_inclinacao_aletaoria)
+```
+
+::: callout-important
+## Aqui vai uma observação extremamente importante
+
+Quando se modela inclinação aleatória, o dfs efetivo para o efeito dentro-cluster cai para o número de clusters (18 sujeitos → df≈17). O `lm` e o `lmer` com apenas intercepto aleatório fingem que têm muitos graus de liberdade (180 linhas - numero de sujeitos\[18\] - 1 intercepto → df≈162).
+
+O modelo com inclinação aleatória honestamente reconhece que a unidade de replicação para a inclinação média são os sujeitos.
+:::
+
+## Por que isso importa
+
+Harrell defende especificar a estrutura de covariância explicitamente. O termo aleatório é onde declaramos como os dados estão correlacionados, e não fingimos independência.
+
+## Ligações
+
+- Módulo 2: os dois tipos de efeito.
+- Módulo 6: como ampliar a estrutura aleatória.

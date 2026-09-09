@@ -1,0 +1,53 @@
+---
+title: "Roteiro de exercícios — Template"
+subtitle: "Prática guiada para fixar o conteúdo"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## Exercícios
+
+1. Ajustar um modelo misto para dados de peso de animais em três pesagens.
+2. Comparar um `lm` (errado) com um `lmer` (correto) e ver a diferença nos erros-padrão.
+3. Incluir inclinação aleatória e decidir, via AIC, se ela melhora o modelo.
+4. Repetir o exemplo com resposta binária usando `glmer`.
+5. (Caso sleepstudy) Contrastar o dia 0 com o dia 9 via `emmeans`.
+6. (Caso esferoides) Identificar onde aparece a interceptação aleatória.
+
+## Dados para o exercício 1
+
+```{r}
+#| label: dados animais
+# Crie dados simulados de três pesagens de animais
+```
+
+## Ajuste sugerido
+
+```{r}
+#| label: ajuste exercicio
+# Ajuste o modelo com interceptação aleatória por animal
+```
+
+## Referências
+
+- Harrell, F. E. (2015). Regression Modeling Strategies. Springer.
+- Field, A., Miles, J., Field, Z. (2012). Discovering Statistics Using R. Sage.
+- Bates, D. et al. (2015). Fitting Linear Mixed-Effects Models Using lme4. JSS.

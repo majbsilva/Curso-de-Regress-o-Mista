@@ -1,0 +1,123 @@
+---
+title: "Efeito fixo versus efeito aleatório"
+subtitle: "Os dois conceitos centrais, sem jargão"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## Dois tipos de efeito
+
+O modelo misto separa a influência sobre a resposta em duas partes. Entender essa separação é o primeiro passo.
+
+### Efeito fixo
+
+É o que queremos estimar e interpretar: o efeito do próprio fator em estudo na população. Exemplos:
+
+- Efeito de um fármaco (versus placebo) sobre a pressão arterial.
+- Diferença entre duas dietas no ganho de peso.
+- Efeito do tempo (dia 0, 7, 14) na carga viral.
+
+Perguntamos: "qual o tamanho desse efeito?"
+
+### Efeito aleatório
+
+É a variação que vem do agrupamento e que não queremos estimar ponto a ponto, só descrever sua dispersão. Exemplos:
+
+- Cada paciente tem sua linha de base própria.
+- Cada hospital tem condições ligeiramente diferentes.
+- Cada lote de reagentes introduz ruído.
+
+Perguntamos: "quanto da variação total vem das diferenças entre grupos?", não "qual o valor exato de cada grupo?".
+
+## A equação resumida
+
+```         
+resposta = efeitos fixos + efeitos aleatórios + erro
+```
+
+## Exemplo
+
+Simulamos dados onde a interceptação varia por sujeito (efeito aleatório) e o tempo tem efeito comum (efeito fixo).
+
+```{r}
+#| label: fixo vs aleatorio
+# Construa um modelo misto e separe os dois tipos de efeito
+library(lme4)
+library(lmerTest)
+
+set.seed(2024)
+n_suj <- 20; n_med <- 5
+base_suj <- rnorm(n_suj, 0, 5)   # efeito aleatório de interceptação
+d <- data.frame()
+for (i in seq_len(n_suj)) {
+  d <- rbind(d, data.frame(
+    sujeito = factor(i),
+    tempo = 1:n_med,
+    v_dependente = base_suj[i] + 3 * (1:n_med) + rnorm(n_med, 0, 1)))
+}
+```
+
+### Gráfico de macarrão (*spaghetti plot*)
+
+```{r}
+library(tidyverse)
+d %>% 
+  ggplot(aes(x = tempo, y = v_dependente, color = sujeito)) +
+  geom_line()
+```
+
+### Modelo
+
+```{r}
+# (1 | sujeito): interceptação aleatória; tempo é efeito fixo
+modelo <- lmer(v_dependente ~ tempo + (1 | sujeito), data = d)
+summary(modelo)
+
+cat("\nEfeito fixo de tempo (estimado):",
+    round(fixef(modelo)["tempo"], 2), "\n")
+cat("Variância entre sujeitos (aleatória):",
+    round(VarCorr(modelo)$sujeito[1], 2), "\n")
+```
+
+O valor fixo perto de 3 e o valor do p confirma o efeito do tempo ; a variância entre sujeitos mostra quanto cada um desvia da linha de base.
+
+### O que você pergunta e o modelo responde
+
+1.  As pessoas mudam em ritmos diferentes ao longo do tempo?
+
+*R: Não sei. O modelo está forçando todos a ter a mesma taxa de mudança (3,046/unidade de tempo)*
+
+2.  As pessoas começam em lugares diferentes?
+
+*R: Sim, muito diferentes, por isso a grande variância do intercepto.*
+
+3.  O modelo está perdoando variação de inclinações?
+
+*R: Sim porque se houver variação real nas inclinações, ela está sendo absorvida pelo resíduo (pequeno no caso: 0,96) ou não está sendo modelada.*
+
+Agora, se você pergunta *"As pessoas mudam de forma diferente em relação ao tempo?"* seria necessário falar com o modelo para considerar uma inclinação diferente para cada sujeito. Veja abaixo
+
+```{r}
+modelo_inclinacao <- lmer(v_dependente ~ tempo + (1 + tempo | sujeito), data = d)
+summary(modelo_inclinacao)
+```
+
+::: callout-note
+## Atenção
+
+O efeito aleatório descreve a dispersão, não o valor de cada um.
+:::

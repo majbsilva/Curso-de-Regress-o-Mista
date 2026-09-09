@@ -1,0 +1,40 @@
+---
+title: "Erros frequentes dos iniciantes"
+subtitle: "O que evitar ao usar modelos mistos"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## Lista de erros
+
+- Tratar medidas repetidas como independentes.
+- Colocar como fixo o que deveria ser aleatório (ou vice-versa).
+- Interpretar o efeito aleatório como estimativa de cada grupo.
+- Esquecer de inspecionar os diagnósticos antes de publicar.
+- Usar `lm` quando deveria ser `lmer`.
+
+## Ilustrando o erro 1 no R
+
+```{r}
+#| label: erro independente
+# Mostre o impacto de ignorar o agrupamento
+library(lme4) 
+library(lmerTest)
+data(sleepstudy)
+m_lm <- lm(Reaction ~ Days, data = sleepstudy)
+m_mix <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+cat("\nEP (lm, ignora grupo): ",
+    round(summary(m_lm)$coef["Days","Std. Error"],3),
+    "\nEP (lmer, reconhece grupo):",
+    round(summary(m_mix)$coef["Days","Std. Error"],3), "\n")
+```

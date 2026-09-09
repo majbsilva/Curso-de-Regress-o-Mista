@@ -1,0 +1,47 @@
+---
+title: "Modelos mistos estendidos"
+subtitle: "Além da resposta contínua"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+## A mesma lógica, outra resposta
+
+Os efeitos fixos e aleatórios se mantêm. O que muda é a função de ligação da resposta.
+
+- Resposta binária (sim/não, cura/não cura): modelos mistos generalizados com `glmer`.
+- Contagens: Poisson ou binomial negativa com efeitos mistos.
+- Sobrevida com dados agrupados: modelos de fragilidade mista.
+
+## Exemplo binomial
+
+```{r}
+#| label: glmer exemplo
+# Ajuste modelo misto generalizado para resposta binária
+library(lme4)
+set.seed(2024)
+n <- 200
+sujeito <- factor(rep(1:40, each = 5))
+x <- rnorm(n)
+p <- plogis(-1 + 0.5 * x + rnorm(40, 0, 0.5)[sujeito])
+y <- rbinom(n, 1, p)
+d <- data.frame(y, x, sujeito)
+modelo_g <- glmer(y ~ x + (1 | sujeito), data = d, family = binomial)
+summary(modelo_g)
+```
+
+O `(1 | sujeito)` continua captando a variação entre sujeitos, agora em uma resposta binária.
+
+## Quando usar
+
+Use `glmer` sempre que a resposta não for contínua e houver agrupamento. A interpretação dos fixos vira em termos de chance (logito).

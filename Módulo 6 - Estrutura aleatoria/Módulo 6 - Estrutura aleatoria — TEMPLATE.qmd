@@ -1,0 +1,49 @@
+---
+title: "Como escolher a estrutura aleatória — Template"
+subtitle: "Do simples ao complexo, guiado pelos dados"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## Comece simples
+
+A regra prática (e recomendada por Harrell): inicie com o modelo mais simples e amplie só se os dados pedirem.
+
+- `(1 | id)`: interceptação aleatória, cada grupo tem linha de base diferente.
+- `(1 + tempo | id)`: interceptação e inclinação aleatórias, cada grupo tem linha de base e evolução próprias.
+- `(1 | hospital/id)`: aninhamento, pacientes aninhados em hospitais.
+
+## Comparando no R
+
+```{r}
+#| label: comparar estruturas
+# Compare interceptação só vs interceptação + inclinação
+```
+
+Se `m2` tiver AIC menor e diferença significativa, os sujeitos pioram em ritmos diferentes.
+
+## Critérios
+
+Use AIC, BIC e teste de razão de verossimilhança. Não inclua efeito aleatório por capricho: cada um consome graus de liberdade e pode impedir a convergência.
+
+## Cuidado
+
+Efeitos aleatórios próximos de zero sugerem que o agrupamento não importa; nesse caso, simplifique.

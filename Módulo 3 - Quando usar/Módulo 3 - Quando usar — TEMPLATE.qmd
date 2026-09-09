@@ -1,0 +1,53 @@
+---
+title: "Quando usar modelo misto (e quando não) — Template"
+subtitle: "Critérios práticos para a escolha do método"
+author: "Marcelo Silva"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: false
+    df-print: paged
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+::: {.callout-important title="Template para preencher"}
+Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
+:::
+
+::: {.callout-note title="Como usar este arquivo"}
+Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
+:::
+
+## Use modelo misto quando
+
+- Houver medidas repetidas no mesmo sujeito ou unidade.
+- Os dados tiverem estrutura hierárquica (alunos em turmas, pacientes em hospitais).
+- Os grupos que você coletou forem apenas uma amostra de uma população maior de grupos, e você quiser generalizar para ela (e não só estimar estes que amostrou).
+
+## Não use modelo misto quando
+
+- Cada observação for independente: a regressão comum (`lm`) basta.
+- Os grupos forem poucos e você quiser estimar cada um individualmente: use efeito fixo para categoria.
+
+## Decisão ilustrada no R
+
+Comparar a regressão comum com o misto mostra quando a escolha importa.
+
+```{r}
+#| label: decidir uso
+# Compare lm e lmer em dados com agrupamento claro
+
+```
+
+O erro-padrão do `lmer` é maior porque reconhece a dependência entre medidas do mesmo sujeito. Quando o agrupamento é real, essa correção evita falso positivo.
+
+## Checklist rápida
+
+1.  As medidas são independentes? Se sim, `lm`. Se não, misto.
+2.  Quero estimar cada grupo ou só descrever a variação? Estimar = fixo; descrever = aleatório.
+3.  Os grupos que você coletou são apenas uma amostra de uma população de grupos? Se sim, o efeito deles é aleatório (você quer generalizar, não estimar cada um).
