@@ -2,13 +2,22 @@
 title: "Quando usar modelo misto (e quando não)"
 subtitle: "Critérios práticos para a escolha do método"
 author: "Marcelo Silva"
+date: today
 format:
   html:
+    theme:
+      light: flatly
+      dark: darkly
     toc: true
+    toc-location: left
     toc-depth: 3
     number-sections: true
-    code-fold: false
+    code-fold: show
+    code-tools: true
     df-print: paged
+    embed-resources: true
+    fig-align: center
+    highlight-style: github
 editor: visual
 execute:
   warning: false

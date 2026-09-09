@@ -43,8 +43,6 @@ Metodologia
 
 Cada módulo teórico tem um arquivo-mestre em Quarto (`.qmd`) com o código completo e um template do aluno (mesmo texto, código em branco com dicas), gerado a partir do mestre pelo script `_ferramentas/gerar_template.R`. Os dois casos práticos seguem a mesma lógica.
 
-
-
 ## Referências
 
 * Harrell, F. E. (2015). _Regression Modeling Strategies_. Springer.
