@@ -33,20 +33,30 @@ O modelo misto separa a influência sobre a resposta em duas partes. Entender es
 É o que queremos estimar e interpretar: o efeito do próprio fator em estudo na população. Exemplos:
 
 - Efeito de um fármaco (versus placebo) sobre a pressão arterial.
-- Diferença entre duas dietas no ganho de peso.
-- Efeito do tempo (dia 0, 7, 14) na carga viral.
 
-Perguntamos: "qual o tamanho desse efeito?"
+- Diferença entre duas dietas no ganho de peso.
+
+- Efeito do tempo (dia 0, 7, 14) na carga viral.
 
 ### Efeito aleatório
 
 É a variação que vem do agrupamento e que não queremos estimar ponto a ponto, só descrever sua dispersão. Exemplos:
 
-- Cada paciente tem sua linha de base própria.
+- Cada paciente tem sua linha de base própria, ou seja, o seu comportamento ao longo do experimento.
 - Cada hospital tem condições ligeiramente diferentes.
-- Cada lote de reagentes introduz ruído.
+- Cada lote de reagentes introduz ruído dentro do experimento.
 
-Perguntamos: "quanto da variação total vem das diferenças entre grupos?", não "qual o valor exato de cada grupo?".
+::: callout-important
+## PERGUNTA
+
+Quanto da variação total vem das diferenças entre grupos? E não "qual o valor exato de cada grupo?"
+
+Exemplo:
+
+- O quanto da satisfação do paciente em relação ao pós-cirúrgico é influencaido pelo hospital que ele foi atendido?
+
+- O quanto da variação observada no crescimento do esferóide é atribuido à réplica biológica?
+:::
 
 ## A equação resumida
 
@@ -60,6 +70,9 @@ Simulamos dados onde a interceptação varia por sujeito (efeito aleatório) e o
 
 ```{r}
 #| label: fixo vs aleatorio
+#| message: false
+#| warning: false
+#| include: false
 # Construa um modelo misto e separe os dois tipos de efeito
 library(lme4)
 library(lmerTest)
@@ -89,7 +102,7 @@ d %>%
 
 ```{r}
 # (1 | sujeito): interceptação aleatória; tempo é efeito fixo
-modelo <- lmer(v_dependente ~ tempo + (1 | sujeito), data = d)
+modelo <- lmer(v_dependente ~ tempo + (1  |sujeito), data = d)
 summary(modelo)
 
 cat("\nEfeito fixo de tempo (estimado):",
@@ -98,7 +111,11 @@ cat("Variância entre sujeitos (aleatória):",
     round(VarCorr(modelo)$sujeito[1], 2), "\n")
 ```
 
-O valor fixo perto de 3 e o valor do p confirma o efeito do tempo ; a variância entre sujeitos mostra quanto cada um desvia da linha de base.
+Em Random Effects, a Variance representa o quanto o intercepto varia entre sujeitos (amostras). Observe no gráfico de macarrão que os sujeitos começam de diferentes ponto do eixo y. Além disso, veja que o Residual é muito pequeno (0.93) comparado com a Variance (36.8). Isso significa que a variabilidade dentro de cada sujeito, não explicada pelo modelo, é muito pequena. Essa informaçao mostra que quase toda a variabilidade total vem da diferença entre sujeitos, e muito pouco ruído dentro de cada sujeito. Ou seja, é como se eu quisesse availar a qualidade das medidas repetidas dentro de cada sujeito. Isso indica que o desenh pareado esta capturando bem a estrutura desses dados.
+
+Observe o df da tabela fixed effects. Veja que os graus de liberade (df) do Intercept fica próximo do número de sujeitos (nesse caso de exemplo são 20) e que os graus de liberdade (df) do tempo fica próximo do número de linhas da tabela (observações) menos o número de parâmetros (no caso, o número de sujeitos que são 20).
+
+O valor fixo do Estimate perto de 3 significa que *se eu aumento em 1 unidade o tempo, eu aumento em 3 unidades a minha variável dependente.* O valor do p confirma o efeito do tempo.
 
 ### O que você pergunta e o modelo responde
 
@@ -121,8 +138,23 @@ modelo_inclinacao <- lmer(v_dependente ~ tempo + (1 + tempo | sujeito), data = d
 summary(modelo_inclinacao)
 ```
 
-::: callout-note
-## Atenção
+**As diferenças em relação ao modelo anterior:**
 
-O efeito aleatório descreve a dispersão, não o valor de cada um.
-:::
+Em Random effects, observe que agora tem tempo com Variance de 0.01. Ou seja, o quanto a inclinação da reta varia entre sujeitos. O desvio padrão é 0.11 é em torno do slope (inclinação) médio de 3.04. Em Random Effects, o Residual continua pequne (0.93).
+
+### E se um ANOVA fosse feito, sem considerar o pareamento
+
+```{r}
+modelo_errado <- lm(v_dependente ~ tempo, data = d)
+summary(modelo_errado)
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x = tempo, y = v_dependente)) +
+  geom_line()
+```
+
+Qual a diferença desse modelo errado com o modelo certo?
+
+A principal diferença são os graus de liberdade (df) e o std. Error. No modelo anterior, o erro padrao era de 0.06, quase 6 vezes menor do que o 0.42. Esse erro padrão é maior porque toda a variabilidade entre sujeitos (lembra que o modelo misto isola o sujeito) fica misturada dentro da variância residual (que é de 6.059), tornando esse erro inflado. Isso 'contamina' a estimativa de incerteza do efeito tempo, tornando-a **artificialmente imprecisa.** Portanto, em casos como esse, você pode cometer um erro do tipo II, ou seja, encontrar uma diferença não estatística por causa do aumento da incerteza e não por causa de um efeito realmente real.

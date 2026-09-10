@@ -27,7 +27,7 @@ execute:
 ## Use modelo misto quando
 
 - Houver medidas repetidas no mesmo sujeito ou unidade.
-- Os dados tiverem estrutura hierárquica (alunos em turmas, pacientes em hospitais).
+- Os dados tiverem estrutura hierárquica (alunos em turmas, pacientes em hospitais, réplicas biológicas).
 - Os grupos que você coletou forem apenas uma amostra de uma população maior de grupos, e você quiser generalizar para ela (e não só estimar estes que amostrou).
 
 ## Não use modelo misto quando
@@ -37,19 +37,22 @@ execute:
 
 ## Exemplo
 
-Comparar a regressão comum com o misto mostra quando a escolha importa.
+Se eu comparar a regressão comum com o modelo misto, vai ficar claro quando a escolha importa.
 
 ```{r}
 #| label: decidir uso
 # Compare lm e lmer em dados com agrupamento claro
+library(tidyverse)
 library(lme4)
 library(lmerTest)
 data(sleepstudy)
 m_lm  <- lm(Reaction ~ Days, data = sleepstudy)
-m_mix <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+m_misto <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+summary(m_lm)
+summary(m_misto)
 
 cat("\nEP de Days (lm): ", round(summary(m_lm)$coef["Days","Std. Error"],3),
-    "\nEP de Days (lmer):", round(summary(m_mix)$coef["Days","Std. Error"],3), "\n")
+    "\nEP de Days (lmer):", round(summary(m_misto)$coef["Days","Std. Error"],3), "\n")
 ```
 
 O erro-padrão do lm e do lmer sao diferentes.
@@ -58,7 +61,7 @@ Quando você ajusta `lm(Reaction ~ Days)` sem levar em conta o agrupamento:
 
 - O modelo trata todos os 180 dados como independentes.
 
-- A variância residual tem que explicar tudo: tanto a variação within quanto a between.
+- A variância residual tem que explicar tudo: tanto a variação within (dentro do sujeito) quanto a between (entre os sujeitos).
 
 Quando você ajusta `lmer(Reaction ~ Days + (1 | Subject))`:
 
@@ -68,8 +71,151 @@ Quando você ajusta `lmer(Reaction ~ Days + (1 | Subject))`:
 
 - Resultado: SE menor, estimativa mais precisa
 
+------------------------------------------------------------------------
+
+E se eu fizesse a seguinte pergunta? O tempo de reação de cada sujeito varia ao longo das visitas?
+
+```{r}
+m_misto_slope_aleatorio <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepstudy)
+summary(m_misto_slope_aleatorio)
+```
+
 ## Checklist rápida
 
 1.  As medidas são independentes? Se sim, `lm`. Se não, misto.
 2.  Quero estimar cada grupo ou só descrever a variação? Estimar = fixo; descrever = aleatório.
-3.  Os grupos que você coletou são apenas uma amostra de uma população de grupos? Se sim, o efeito deles é aleatório (você quer generalizar, não estimar cada um).
+
+------------------------------------------------------------------------
+
+## Caso estudo esferóides
+
+```{r}
+esferoides <- readxl::read_xlsx("Dados_231_replicasbiologicas.xlsx")
+
+esferoides <- esferoides %>% 
+  mutate(
+  Tempo = factor(Tempo, levels = c('0h', '72h')),
+  Replica = factor(Replica),
+  Grupo = factor(Grupo, levels = c("CT_DMSO", "Carbo","Doxo",  "Ert+Akt","Paclitaxel","TriplaCarbo","TriplaDoxo","TriplaPaclitaxel"))
+) %>% 
+  group_by(Grupo, Tempo) %>% 
+  mutate(
+    indice = row_number()
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    ID = interaction(Grupo, indice, Replica, drop = T),
+    logArea = log(Area)
+  )
+
+```
+
+### Vamos analisar o experimento utilizando o coeficiente de variaçao
+
+```{r}
+esferoides %>% 
+  group_by(Replica, Grupo, Tempo) %>% 
+  summarise(
+    n = n(),
+    coef_var = sd(Area)*100 / mean(Area)
+  )
+```
+
+```{r}
+esferoides %>% 
+  ggplot(aes(x = Tempo, y = Area, colour = Replica)) +
+  geom_boxplot() +
+  stat_summary(fun = mean, geom = 'point', shape = 15, size = 3, colour = 'black')+
+  facet_wrap(~ Grupo, ncol = 4 )
+```
+
+### Gerando uma tabela larga
+
+```{r}
+largo <- esferoides %>% 
+  select(Grupo, Replica, indice, Tempo, logArea) %>% 
+  pivot_wider(
+    names_from = Tempo,
+    values_from = logArea
+  ) %>% 
+  rename(
+    log_0h = '0h',
+    log_72h = '72h'
+  ) %>% 
+  group_by(Grupo) %>% 
+  mutate(
+    dif = log_72h - log_0h
+  ) %>% 
+  ungroup()
+```
+
+### Gráfico
+
+```{r}
+largo %>% 
+  ggplot(aes(x = Grupo, y = dif, colour = factor(Replica)))+
+  geom_boxplot()
+```
+
+### O modelo modelando a diferença entre grupos
+
+```{r}
+library(nlme) # contem a funcao gls
+mm_final <- gls(dif ~ Grupo + Replica, data = largo, weights = varIdent(form = ~ 1 | Grupo))
+summary(mm_final)
+```
+
+### Obtendo as médias marginais
+
+```{r}
+library(emmeans)
+medias_marginais <- emmeans(mm_final, spec = ~ Grupo)
+medias_marginais
+```
+
+#### Fazendo a comparação dos pares com as médias marginais
+
+```{r}
+dunnet <- contrast(medias_marginais, method = 'trt.vs.ctrl', ref = 1)
+dunnet
+dunnet_ic <- confint(dunnet)
+```
+
+#### Como escolho pares para comparar?
+
+```{r}
+# meus níveis "CT_DMSO"          "Carbo"            "Doxo"             "Ert+Akt"          "Paclitaxel"       "TriplaCarbo"      "TriplaDoxo"      "TriplaPaclitaxel"
+
+pares_escolhidos <- contrast(medias_marginais, method = list(
+  "Tripla Cargo - Carbo " = c(0, -1, 0, 0, 0, 1, 0, 0),
+  "Tripla Doxo - doxo " = c(0, 0, -1, 0, 0, 0, 1, 0),
+  "TriplaPaclitaxel - Paclitaxel " = c(0, 0, 0, 0, -1, 0, 0, 1)
+), adjust = 'sidak') # ou holm
+
+pares_escolhidos
+```
+
+#### Comparar todo mundo com todo mundo
+
+```{r}
+# comparar todo mundo com todo mundo. É o teste de Tukey, mas se voce tem mais grupos comparados, o teste de comparacao multipla vai penalizar o seu p. Portanto, compare todo mundo com todo mundo se realmente fizer sentido. 
+
+pairs(medias_marginais)
+```
+
+### Gráfico de floresta
+
+```{r}
+dunnet_ic %>% 
+  ggplot(aes(x = exp(estimate), y = contrast)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(xmin = exp(lower.CL), xmax = exp(upper.CL)), width = 0.3) +
+  geom_label(aes(label = round(exp(estimate),2), vjust = -0.5), size = 4) +
+  geom_vline(aes(xintercept = 1), linetype = 'dashed') +
+  facet_grid(~Replica)
+labs(
+  title = 'Efeito geral do tratamento no crescimento (razão 72h/0h)',
+  x = 'Razão de crescimento (tratamento / controle)',
+  caption = 'Ajustado por Réplica (bloco). Interação Grupo:Réplica significativa (ver seção de reprodutibilidade) --\no efeito pode variar entre repetições biológicas.'
+)
+```
