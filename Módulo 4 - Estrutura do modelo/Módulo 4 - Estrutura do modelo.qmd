@@ -89,11 +89,4 @@ Quando se modela inclinação aleatória, o dfs efetivo para o efeito dentro-clu
 O modelo com inclinação aleatória honestamente reconhece que a unidade de replicação para a inclinação média são os sujeitos.
 :::
 
-## Por que isso importa
-
-Harrell defende especificar a estrutura de covariância explicitamente. O termo aleatório é onde declaramos como os dados estão correlacionados, e não fingimos independência.
-
-## Ligações
-
-- Módulo 2: os dois tipos de efeito.
-- Módulo 6: como ampliar a estrutura aleatória.
+## 

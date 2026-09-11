@@ -91,4 +91,5 @@ cat("\nEP de tratamentoA (lm):",
     round(summary(m_lm)$coef["tratamentoTratado:factor(visita)30","Std. Error"], 3), "\n")
 cat("EP de tratamentoA (lmer):",
     round(summary(modelo)$coef["tratamentoTratado:factor(visita)30","Std. Error"], 3), "\n")
+summary(m_lm)
 ```
