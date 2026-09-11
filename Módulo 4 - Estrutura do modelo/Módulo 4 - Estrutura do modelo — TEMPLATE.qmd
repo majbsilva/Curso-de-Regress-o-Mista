@@ -2,13 +2,22 @@
 title: "Estrutura do modelo misto — Template"
 subtitle: "A forma matemática traduzida para uso prático"
 author: "Marcelo Silva"
+date: today
 format:
   html:
+    theme:
+      light: flatly
+      dark: darkly
     toc: true
+    toc-location: left
     toc-depth: 3
     number-sections: true
-    code-fold: false
+    code-fold: show
+    code-tools: true
     df-print: paged
+    embed-resources: true
+    fig-align: center
+    highlight-style: github
 editor: visual
 execute:
   warning: false
@@ -19,15 +28,11 @@ execute:
 Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
 :::
 
-::: {.callout-note title="Como usar este arquivo"}
-Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
-:::
-
 ## A equação
 
 O modelo misto linear (resposta contínua) tem a forma:
 
-```
+```         
 y = X * beta + Z * b + e
 ```
 
@@ -44,13 +49,13 @@ A parte aleatória assume distribuição, em geral normal, com sua própria vari
 
 No `lme4`, escrevemos a parte fixa à esquerda e a aleatória entre parênteses à direita:
 
-```
+```         
 lmer(resposta ~ fixos + (1 | grupo), data = d)
 ```
 
 O `(1 | grupo)` diz: cada grupo tem sua própria interceptação (linha de base).
 
-## Exemplo mínimo
+## Exemplo
 
 ```{r}
 #| label: estrutura minima
@@ -59,11 +64,22 @@ O `(1 | grupo)` diz: cada grupo tem sua própria interceptação (linha de base)
 
 Repare na saída: `Random effects` traz a variância entre sujeitos; `Fixed effects` traz o efeito de `Days`.
 
-## Por que isso importa (Harrell)
+### Vamos observar o gráfico de macarrão
 
-Harrell defende especificar a estrutura de covariância explicitamente. O termo aleatório é onde declaramos como os dados estão correlacionados, e não fingimos independência.
+```{r}
+```
 
-## Ligações
+Veja no gráfico acima, que cada a reação de cada sujeito ao longo do tempo é diferente. Vamos ver isso no modelando com a inclinação aleatória
 
-- Módulo 2: os dois tipos de efeito.
-- Módulo 6: como ampliar a estrutura aleatória.
+```{r}
+```
+
+::: callout-important
+## Aqui vai uma observação extremamente importante
+
+Quando se modela inclinação aleatória, o dfs efetivo para o efeito dentro-cluster cai para o número de clusters (18 sujeitos → df≈17). O `lm` e o `lmer` com apenas intercepto aleatório fingem que têm muitos graus de liberdade (180 linhas - numero de sujeitos\[18\] - 1 intercepto → df≈162).
+
+O modelo com inclinação aleatória honestamente reconhece que a unidade de replicação para a inclinação média são os sujeitos.
+:::
+
+## 

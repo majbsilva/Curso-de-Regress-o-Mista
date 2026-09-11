@@ -2,13 +2,22 @@
 title: "Por que usar modelo misto — Template"
 subtitle: "Fundamento: dados não independentes na pesquisa"
 author: "Marcelo Silva"
+date: today
 format:
   html:
+    theme:
+      light: flatly
+      dark: darkly
     toc: true
+    toc-location: left
     toc-depth: 3
     number-sections: true
-    code-fold: false
+    code-fold: show
+    code-tools: true
     df-print: paged
+    embed-resources: true
+    fig-align: center
+    highlight-style: github
 editor: visual
 execute:
   warning: false
@@ -19,17 +28,15 @@ execute:
 Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
 :::
 
-::: {.callout-note title="Como usar este arquivo"}
-Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
-:::
+## As réplicas biológicas
+
+Na pesquisa precisamos repetir experimentos, o que chamamos de réplica biológica. **A réplica biológica** é uma estratégia utilizada para aumentar a credibilidade do resultado obtido. O resultado que se mantém mesmo executado em momentos diferentes tem mais credibilidade do que o resultado que nunca foi repetido. A **réplica técnica** é uma estratégia que controla a variabilidade dentro do próprio grupo na mesma réplica biológica. A intenção é capturar falhas técnicas como erros de pipetagem.
 
 ## O problema central
 
-Na pesquisa, raramente temos observações totalmente independentes. Medimos o mesmo paciente em vários momentos, o mesmo animal em várias pesagens, a mesma placa de cultura em vários tempos. Quando isso acontece, as medidas de um mesmo grupo se parecem mais entre si do que com as de outros grupos.
+Na pesquisa, mutas vezes temos observações totalmente dependentes. Medimos o mesmo paciente em vários momentos, o mesmo animal em várias pesagens, a mesma placa de cultura em vários tempos. Quando isso acontece, as medidas de um mesmo grupo se parecem mais entre si do que com as de outros grupos.
 
 A regressão comum (como `lm`) trata cada linha como se fosse um sujeito diferente. Ela "acha" mais independência do que existe e entrega erros-padrão subestimados. Conclusão falsa: achamos significância onde não há.
-
-Harrell reforça: modelar a estrutura de covariância dos dados faz parte do modelo, não é detalhe. Field apresenta o mesmo ponto como a porta de entrada para modelos multinível.
 
 ## Exemplos de dados agrupados
 
@@ -40,7 +47,7 @@ Harrell reforça: modelar a estrutura de covariância dos dados faz parte do mod
 
 ## O que o modelo misto faz
 
-Ele separa dois tipos de efeito: os que nos interessam (efeitos fixos) e a variação entre grupos (efeitos aleatórios). Assim os erros-padrão passam a refletir a dependência real dos dados.
+Ele separa dois tipos de efeito: os que nos interessam (**efeitos fixos**) e a variação entre grupos (**efeitos aleatórios**). Assim os erros-padrão passam a refletir a dependência real dos dados.
 
 ## Simulando o problema
 

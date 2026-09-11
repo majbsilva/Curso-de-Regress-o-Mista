@@ -2,13 +2,22 @@
 title: "Efeito fixo versus efeito aleatório — Template"
 subtitle: "Os dois conceitos centrais, sem jargão"
 author: "Marcelo Silva"
+date: today
 format:
   html:
+    theme:
+      light: flatly
+      dark: darkly
     toc: true
+    toc-location: left
     toc-depth: 3
     number-sections: true
-    code-fold: false
+    code-fold: show
+    code-tools: true
     df-print: paged
+    embed-resources: true
+    fig-align: center
+    highlight-style: github
 editor: visual
 execute:
   warning: false
@@ -17,10 +26,6 @@ execute:
 
 ::: {.callout-important title="Template para preencher"}
 Este é o **arquivo do aluno**: os blocos de código estão vazios, com uma dica em cada um. Escreva o código junto com o professor durante a aula.
-:::
-
-::: {.callout-note title="Como usar este arquivo"}
-Módulo teórico do curso de bioestatística em R. Digite o código junto com o professor durante a aula; o template vazio está na pasta ao lado. As referências base são Harrell (Regression Modeling Strategies) e Field, Miles e Field (Discovering Statistics Using R).
 :::
 
 ## Dois tipos de efeito
@@ -32,20 +37,30 @@ O modelo misto separa a influência sobre a resposta em duas partes. Entender es
 É o que queremos estimar e interpretar: o efeito do próprio fator em estudo na população. Exemplos:
 
 - Efeito de um fármaco (versus placebo) sobre a pressão arterial.
-- Diferença entre duas dietas no ganho de peso.
-- Efeito do tempo (dia 0, 7, 14) na carga viral.
 
-Perguntamos: "qual o tamanho desse efeito?"
+- Diferença entre duas dietas no ganho de peso.
+
+- Efeito do tempo (dia 0, 7, 14) na carga viral.
 
 ### Efeito aleatório
 
 É a variação que vem do agrupamento e que não queremos estimar ponto a ponto, só descrever sua dispersão. Exemplos:
 
-- Cada paciente tem sua linha de base própria.
+- Cada paciente tem sua linha de base própria, ou seja, o seu comportamento ao longo do experimento.
 - Cada hospital tem condições ligeiramente diferentes.
-- Cada lote de reagentes introduz ruído.
+- Cada lote de reagentes introduz ruído dentro do experimento.
 
-Perguntamos: "quanto da variação total vem das diferenças entre grupos?", não "qual o valor exato de cada grupo?".
+::: callout-important
+## PERGUNTA
+
+Quanto da variação total vem das diferenças entre grupos? E não "qual o valor exato de cada grupo?"
+
+Exemplo:
+
+- O quanto da satisfação do paciente em relação ao pós-cirúrgico é influencaido pelo hospital que ele foi atendido?
+
+- O quanto da variação observada no crescimento do esferóide é atribuido à réplica biológica?
+:::
 
 ## A equação resumida
 
@@ -53,26 +68,68 @@ Perguntamos: "quanto da variação total vem das diferenças entre grupos?", nã
 resposta = efeitos fixos + efeitos aleatórios + erro
 ```
 
-## Ilustrando no R
+## Exemplo
 
 Simulamos dados onde a interceptação varia por sujeito (efeito aleatório) e o tempo tem efeito comum (efeito fixo).
 
 ```{r}
 #| label: fixo vs aleatorio
+#| message: false
+#| warning: false
+#| include: false
 # Construa um modelo misto e separe os dois tipos de efeito
 
+```
 
+### Gráfico de macarrão (*spaghetti plot*)
+
+```{r}
+```
+
+### Modelo
+
+```{r}
 # (1 | sujeito): interceptação aleatória; tempo é efeito fixo
 
 ```
 
-O valor fixo perto de 3 confirma o efeito do tempo; a variância entre sujeitos mostra quanto cada um desvia da linha de base.
+Em Random Effects, a Variance representa o quanto o intercepto varia entre sujeitos (amostras). Observe no gráfico de macarrão que os sujeitos começam de diferentes ponto do eixo y. Além disso, veja que o Residual é muito pequeno (0.93) comparado com a Variance (36.8). Isso significa que a variabilidade dentro de cada sujeito, não explicada pelo modelo, é muito pequena. Essa informaçao mostra que quase toda a variabilidade total vem da diferença entre sujeitos, e muito pouco ruído dentro de cada sujeito. Ou seja, é como se eu quisesse availar a qualidade das medidas repetidas dentro de cada sujeito. Isso indica que o desenh pareado esta capturando bem a estrutura desses dados.
 
-## Erro comum de interpretação
+Observe o df da tabela fixed effects. Veja que os graus de liberade (df) do Intercept fica próximo do número de sujeitos (nesse caso de exemplo são 20) e que os graus de liberdade (df) do tempo fica próximo do número de linhas da tabela (observações) menos o número de parâmetros (no caso, o número de sujeitos que são 20).
 
-Não trate o efeito aleatório como estimativa de cada grupo. Ele descreve a dispersão, não o valor de cada um.
+O valor fixo do Estimate perto de 3 significa que *se eu aumento em 1 unidade o tempo, eu aumento em 3 unidades a minha variável dependente.* O valor do p confirma o efeito do tempo.
 
-## Conceitos-chave (Harrell, Field)
+### O que você pergunta e o modelo responde
 
-- Harrell: a estrutura de covariância entre medidas do mesmo grupo é parte do modelo.
-- Field: o efeito aleatório capta que os grupos vêm de uma população maior de grupos.
+1.  As pessoas mudam em ritmos diferentes ao longo do tempo?
+
+*R: Não sei. O modelo está forçando todos a ter a mesma taxa de mudança (3,046/unidade de tempo)*
+
+2.  As pessoas começam em lugares diferentes?
+
+*R: Sim, muito diferentes, por isso a grande variância do intercepto.*
+
+3.  O modelo está perdoando variação de inclinações?
+
+*R: Sim porque se houver variação real nas inclinações, ela está sendo absorvida pelo resíduo (pequeno no caso: 0,96) ou não está sendo modelada.*
+
+Agora, se você pergunta *"As pessoas mudam de forma diferente em relação ao tempo?"* seria necessário falar com o modelo para considerar uma inclinação diferente para cada sujeito. Veja abaixo
+
+```{r}
+```
+
+**As diferenças em relação ao modelo anterior:**
+
+Em Random effects, observe que agora tem tempo com Variance de 0.01. Ou seja, o quanto a inclinação da reta varia entre sujeitos. O desvio padrão é 0.11 é em torno do slope (inclinação) médio de 3.04. Em Random Effects, o Residual continua pequne (0.93).
+
+### E se um ANOVA fosse feito, sem considerar o pareamento
+
+```{r}
+```
+
+```{r}
+```
+
+Qual a diferença desse modelo errado com o modelo certo?
+
+A principal diferença são os graus de liberdade (df) e o std. Error. No modelo anterior, o erro padrao era de 0.06, quase 6 vezes menor do que o 0.42. Esse erro padrão é maior porque toda a variabilidade entre sujeitos (lembra que o modelo misto isola o sujeito) fica misturada dentro da variância residual (que é de 6.059), tornando esse erro inflado. Isso 'contamina' a estimativa de incerteza do efeito tempo, tornando-a **artificialmente imprecisa.** Portanto, em casos como esse, você pode cometer um erro do tipo II, ou seja, encontrar uma diferença não estatística por causa do aumento da incerteza e não por causa de um efeito realmente real.
