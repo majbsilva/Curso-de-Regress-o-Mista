@@ -136,8 +136,20 @@ largo <- esferoides %>%
   mutate(
     dif = log_72h - log_0h
   ) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(
+    indice = interaction(Replica, Grupo)
+  )
+  
 ```
+
+Para conferir o índice acima, se deu certo, faça utilize a função count abaixo
+
+```{r}
+largo %>% count(indice)
+```
+
+Observe o resultado da funçao acima mostra que o indice CT_DMSO repete 7 vezes na replica biológica 1, o que deve bater com o número de replicatas técnicas.
 
 ```{r}
 largo %>% 
@@ -160,7 +172,7 @@ largo %>%
 ### Realizando o modelo
 
 ```{r}
-m_lme <- lme(dif ~ Grupo, random = ~1 | Replica, weights = varIdent(form = ~1 | Grupo), data = largo, method = "REML")
+m_lme <- lme(dif ~ Grupo, random = ~1 | indice, weights = varIdent(form = ~1 | Grupo), data = largo, method = "REML")
 summary(m_lme)
 ```
 
@@ -414,7 +426,7 @@ Se, em vez disso, as três réplicas fossem **todas as réplicas que existem** (
 ### Resumo do exemplo
 
 | Situação | Abordagem | Por quê |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Todas as 39 medidas tratadas como independentes | `llm(Expressao ~ Tratamento)` | Ignora que medidas da mesma réplica são correlacionadas, **não recomendado** |
 | Réplicas como amostra de população, quer generalizar | `lmer(Expressao ~ Tratamento + (1 \| BioReplica))` | Particiona variância biológica vs. técnica, **correto para este desenho** |
 | Só três réplicas que existem e quer estimar cada uma | `lm(Expressao ~ Tratamento + BioReplica)` | Cada réplica é um nível fixo estimado individualmente |
@@ -497,7 +509,7 @@ O modelo misto feito anteriormente (bloco `modelo-misto-esr2`) e a ANOVA sobre m
 Em um experimento com muitas réplicas (digamos, 10 por grupo) e poucas medidas técnicas por réplica, as duas abordagens convergem: ambas tratam a réplica como unidade de análise. Em um experimento com poucas réplicas e muitas medidas técnicas (como aqui, 3 réplicas com 4-5 técnicas), o modelo misto é geralmente preferível porque aproveita a informação das medidas técnicas extras para estimar melhor a variância residual.
 
 | Abordagem | Pseudoreplicação? | Por quê |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `lm(Expressao ~ Tratamento)` com 39 medidas | Sim | Trata medidas não-independentes como independentes: infla DF e subexpõe erro-padrão |
 | `lmer(Expressao ~ Tratamento + (1 BioReplica))` com 39 medidas | Não | Modela explicitamente a dependência dentro da réplica; o efeito do tratamento é estimado pelas diferenças entre réplicas, não pelo volume de técnicas. Utilizado no seguinte caso: "quero saber se 4OHT e 4OHT+E2 alteram a expressão de ESR2 em células T47D, de forma que eu possa confiar se repetir o experimento com novas células, novos dias". |
 | `lm(Expressao ~ Tratamento + BioReplica)` | Não | Trata a bioreplica como fator fixo. Isso é quando você quer conhecer o efeito do tratamento na expressão apeanas naquelas réplicas e não quer generalizar. |
@@ -559,7 +571,7 @@ No `lmer` com BioReplica aleatório, a estrutura do modelo reconhece que mais me
 ### Resumos
 
 | Situação | Abordagem | Por quê |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Todas as 39 medidas tratadas como independentes | `lm(Expressao ~ Tratamento)` | Ignora que medidas da mesma réplica são correlacionadas: não recomendado |
 | Réplicas como amostra de população, quer generalizar | `lmer(Expressao ~ Tratamento + (1 | BioReplica))` | Particiona variância biológica vs. técnica: correto para este desenho |
 | Só três réplicas que existem e quer estimar cada uma | `lm(Expressao ~ Tratamento + BioReplica)` | Cada réplica é um nível fixo estimado individualmente |
