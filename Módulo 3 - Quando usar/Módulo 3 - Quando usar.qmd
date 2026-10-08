@@ -79,6 +79,8 @@ E se eu fizesse a seguinte pergunta? O tempo de reação de cada sujeito varia a
 ```{r}
 m_misto_slope_aleatorio <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepstudy)
 summary(m_misto_slope_aleatorio)
+
+
 ```
 
 ## Checklist rápida
@@ -167,8 +169,7 @@ summary(m_lme)
 
 Se quiser utilizar Replica como fator fixo, mantendo a variação diferente entre grupos, pode-se utilizar o gls com a seguinte sintaxe
 
-m_gls \<- gls(dif \~ Grupo + Replica, weights = varIdent(form = \~1 \| Grupo), data = largo, method = "REML")
-summary(m_gls)
+m_gls \<- gls(dif \~ Grupo + Replica, weights = varIdent(form = \~1 \| Grupo), data = largo, method = "REML") summary(m_gls)
 :::
 
 ### Obtendo as médias marginais
@@ -365,6 +366,13 @@ m_misto <- lmer(
   data = esr2
 )
 summary(m_misto)
+
+# Modelo misto: efeito fixo do tratamento + intercepto aleatório por réplica
+m_lm_bioreplic_fixo <- lm(
+  Expressao ~ Tratamento + BioReplica,
+  data = esr2
+)
+summary(m_lm_bioreplic_fixo)
 ```
 
 Agora a variância é particionada:
@@ -372,7 +380,7 @@ Agora a variância é particionada:
 - **Variância do intercepto aleatório** (BioReplica): quanto as réplicas biológicas diferem entre si, em média, independentemente do tratamento.
 - **Variância residual**: o que sobra dentro de cada réplica, ruído técnico das replicates técnicas.
 
-O efeito fixo de `Tratamento` é estimado a partir da variação **dentro** de cada réplica biológica. É esse o sinal que importa: mudou a expressão de ESR2 quando eu mudei o tratamento, controlando a variação biológica entre réplicas?
+O efeito fixo de `Tratamento` é estimado a partir da variação **dentro** de cada réplica biológica. É esse o sinal que importa: **a expressão de ESR2 muda com o tratamento e, quando coloco réplica biológica como efeito aletatório, eu estou controlando a variação do efeito dos tratamentos entre réplicas.**
 
 ### Comparando os dois erros-padrão
 
@@ -406,7 +414,7 @@ Se, em vez disso, as três réplicas fossem **todas as réplicas que existem** (
 ### Resumo do exemplo
 
 | Situação | Abordagem | Por quê |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Todas as 39 medidas tratadas como independentes | `llm(Expressao ~ Tratamento)` | Ignora que medidas da mesma réplica são correlacionadas, **não recomendado** |
 | Réplicas como amostra de população, quer generalizar | `lmer(Expressao ~ Tratamento + (1 \| BioReplica))` | Particiona variância biológica vs. técnica, **correto para este desenho** |
 | Só três réplicas que existem e quer estimar cada uma | `lm(Expressao ~ Tratamento + BioReplica)` | Cada réplica é um nível fixo estimado individualmente |
@@ -443,7 +451,7 @@ Esse tibble tem exatamente 9 linhas: 3 tratamentos × 3 réplicas = 9 combinaç�
 Agora que temos 3 observações por tratamento (as médias de BioRep1, BioRep2 e BioRep3), podemos rodar uma ANOVA:
 
 ```{r}
-#| label: anova-media-replicada
+#| label: anova-media-replicada - E O QUE TODO MUNDO FAZ
 # ANOVA com médias das réplicas como unidade de análise
 m_anova_media <- lm(media ~ Tratamento, data = media_replica)
 summary(m_anova_media)
@@ -489,7 +497,7 @@ O modelo misto feito anteriormente (bloco `modelo-misto-esr2`) e a ANOVA sobre m
 Em um experimento com muitas réplicas (digamos, 10 por grupo) e poucas medidas técnicas por réplica, as duas abordagens convergem: ambas tratam a réplica como unidade de análise. Em um experimento com poucas réplicas e muitas medidas técnicas (como aqui, 3 réplicas com 4-5 técnicas), o modelo misto é geralmente preferível porque aproveita a informação das medidas técnicas extras para estimar melhor a variância residual.
 
 | Abordagem | Pseudoreplicação? | Por quê |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | `lm(Expressao ~ Tratamento)` com 39 medidas | Sim | Trata medidas não-independentes como independentes: infla DF e subexpõe erro-padrão |
 | `lmer(Expressao ~ Tratamento + (1 BioReplica))` com 39 medidas | Não | Modela explicitamente a dependência dentro da réplica; o efeito do tratamento é estimado pelas diferenças entre réplicas, não pelo volume de técnicas. Utilizado no seguinte caso: "quero saber se 4OHT e 4OHT+E2 alteram a expressão de ESR2 em células T47D, de forma que eu possa confiar se repetir o experimento com novas células, novos dias". |
 | `lm(Expressao ~ Tratamento + BioReplica)` | Não | Trata a bioreplica como fator fixo. Isso é quando você quer conhecer o efeito do tratamento na expressão apeanas naquelas réplicas e não quer generalizar. |
@@ -497,7 +505,7 @@ Em um experimento com muitas réplicas (digamos, 10 por grupo) e poucas medidas 
 
 ### Interpretação das emmeans: o que muda entre modelo fixo e aleatório
 
-#### Conceito de média marginal 
+#### Conceito de média marginal
 
 Antes de comparar o modelo fixo com o aleatório, é importante entender o que o `emmeans()` está calculando em ambos: a **média marginal** de cada tratamento.
 
@@ -551,7 +559,7 @@ No `lmer` com BioReplica aleatório, a estrutura do modelo reconhece que mais me
 ### Resumos
 
 | Situação | Abordagem | Por quê |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Todas as 39 medidas tratadas como independentes | `lm(Expressao ~ Tratamento)` | Ignora que medidas da mesma réplica são correlacionadas: não recomendado |
 | Réplicas como amostra de população, quer generalizar | `lmer(Expressao ~ Tratamento + (1 | BioReplica))` | Particiona variância biológica vs. técnica: correto para este desenho |
 | Só três réplicas que existem e quer estimar cada uma | `lm(Expressao ~ Tratamento + BioReplica)` | Cada réplica é um nível fixo estimado individualmente |

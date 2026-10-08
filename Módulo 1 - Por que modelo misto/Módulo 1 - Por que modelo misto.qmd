@@ -30,7 +30,7 @@ Na pesquisa precisamos repetir experimentos, o que chamamos de réplica biológi
 
 ## O problema central
 
-Na pesquisa, mutas vezes temos observações totalmente dependentes. Medimos o mesmo paciente em vários momentos, o mesmo animal em várias pesagens, a mesma placa de cultura em vários tempos. Quando isso acontece, as medidas de um mesmo grupo se parecem mais entre si do que com as de outros grupos.
+Em experimentos, mutas vezes temos observações totalmente dependentes. Medimos o mesmo paciente em vários momentos, o mesmo animal em várias pesagens, a mesma placa de cultura em vários tempos. Quando isso acontece, as medidas de um mesmo grupo se parecem mais entre si do que com as de outros grupos.
 
 A regressão comum (como `lm`) trata cada linha como se fosse um sujeito diferente. Ela "acha" mais independência do que existe e entrega erros-padrão subestimados. Conclusão falsa: achamos significância onde não há.
 

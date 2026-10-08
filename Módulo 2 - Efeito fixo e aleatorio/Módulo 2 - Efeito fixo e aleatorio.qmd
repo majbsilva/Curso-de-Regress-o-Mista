@@ -76,6 +76,7 @@ Simulamos dados onde a interceptação varia por sujeito (efeito aleatório) e o
 # Construa um modelo misto e separe os dois tipos de efeito
 library(lme4)
 library(lmerTest)
+library(tidyverse)
 
 set.seed(2024)
 n_suj <- 20; n_med <- 5
@@ -134,8 +135,16 @@ O valor fixo do Estimate perto de 3 significa que *se eu aumento em 1 unidade o 
 Agora, se você pergunta *"As pessoas mudam de forma diferente em relação ao tempo?"* seria necessário falar com o modelo para considerar uma inclinação diferente para cada sujeito. Veja abaixo
 
 ```{r}
+## MODELANDO O SUJETIO (INTERCEPTOS ALEATÓRIOS)
+modelo <- lmer(v_dependente ~ tempo + (1  |sujeito), data = d)
+summary(modelo)
+
+## MODELANDO O SUSJEITO E O SLOPE
+
 modelo_inclinacao <- lmer(v_dependente ~ tempo + (1 + tempo | sujeito), data = d)
 summary(modelo_inclinacao)
+
+anova(modelo, modelo_inclinacao)
 ```
 
 **As diferenças em relação ao modelo anterior:**
